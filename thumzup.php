@@ -4,6 +4,7 @@ require_once __DIR__ . '/config.php';
 $list_id = 360;
 
 $spreadsheetId = '1uY6KepGmV_sLaFUuBRZYuZbeYkG-g17cDCLSy9rIPEc';
+$spreadsheetId2 = '17LmF-ivyF6mHz55is-KDrgfaogWhU266nC4nCU_zgTY';
 
 $properties = "&property=email&property=firstname&property=lastname&property=phone";
 $properties .= '&property=eftransaction_thumzup';
@@ -23,11 +24,19 @@ $range = 'Thumzup Leads'; // here we use the name of the Sheet to get all the ro
 $response = $service->spreadsheets_values->get($spreadsheetId, $range);
 $values = $response->getValues();
 $total_rows = count($values);
-
 if ($total_rows > 1) {
     $range = 'Thumzup Leads!A2:Q' . $total_rows;
     $clear = new \Google_Service_Sheets_ClearValuesRequest();
     $service->spreadsheets_values->clear($spreadsheetId, $range, $clear);
+}
+
+$response = $service->spreadsheets_values->get($spreadsheetId2, $range);
+$values = $response->getValues();
+$total_rows = count($values);
+if ($total_rows > 1) {
+    $range = 'Thumzup Leads!A2:L' . ($total_rows + 1);
+    $clear = new \Google_Service_Sheets_ClearValuesRequest();
+    $service->spreadsheets_values->clear($spreadsheetId2, $range, $clear);
 }
 
 $offset = 0;
@@ -36,6 +45,7 @@ do {
     $response = doCurl('contacts/v1/lists/' . $list_id . '/contacts/all?count=100&formSubmissionMode=newest' . $properties . '&vidoffset=' . $offset);
 
     $rows = [];
+    $rows2 = [];
     foreach ($response['contacts'] as $contact) {
         $contact_props = $contact['properties'];
         $first_name = (string) $contact_props['firstname']['value'];
@@ -76,7 +86,7 @@ do {
 
         // $deals = doCurl(sprintf('crm-associations/v1/associations/%d/HUBSPOT_DEFINED/5', $contact['vid']));
 
-        $newRow = [
+        $rows[] = [
             $first_name,
             $last_name,
             $email,
@@ -95,9 +105,20 @@ do {
             $thumzup_dalmore_funded_date,
         ];
 
-        print_r($newRow);
-
-        $rows[] = $newRow; // you can append several rows at once
+        $rows2[] = [
+            $first_name,
+            $last_name,
+            $email,
+            $phone,
+            $utm_source,
+            $optin_date_thumzup,
+            $thumzup_dalmore_amount,
+            $thumzup_dalmore_investment_step,
+            $thumzup_dalmore_registration_date,
+            $thumzup_dalmore_investment_status,
+            $thumzup_dalmore_signature_date,
+            $thumzup_dalmore_funded_date,
+        ];
     }
 
     $valueRange = new \Google_Service_Sheets_ValueRange();
@@ -105,6 +126,12 @@ do {
     $range = 'Thumzup Leads'; // the service will detect the last row of this sheet
     $options = ['valueInputOption' => 'USER_ENTERED'];
     $service->spreadsheets_values->append($spreadsheetId, $range, $valueRange, $options);
+
+    $valueRange = new \Google_Service_Sheets_ValueRange();
+    $valueRange->setValues($rows2);
+    $range = 'Thumzup Leads'; // the service will detect the last row of this sheet
+    $options = ['valueInputOption' => 'USER_ENTERED'];
+    $service->spreadsheets_values->append($spreadsheetId2, $range, $valueRange, $options);
 
     $offset = $response['vid-offset'];
 
