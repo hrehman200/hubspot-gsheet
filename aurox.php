@@ -39,7 +39,7 @@ if ($total_rows > 1) {
 $offset = 0;
 
 do {
-    $response = doCurl('contacts/v1/lists/' . $list_id . '/contacts/all?count=100&formSubmissionMode=newest' . $properties . '&vidoffset=' . $offset);
+    $response = doCurl('contacts/v1/lists/' . $list_id . '/contacts/all?count=100&formSubmissionMode=newest' . $properties . '&vidOffset=' . $offset);
 
     $rows = [];
     $rows2 = [];
