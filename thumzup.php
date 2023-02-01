@@ -135,4 +135,4 @@ do {
 
     $offset = $response['vid-offset'];
 
-} while ($response['has_more']);
+} while ($response['has-more']);
