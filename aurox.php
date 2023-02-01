@@ -16,6 +16,7 @@ $properties .= '&property=utm_content_aurox';
 $properties .= '&property=utm_medium_aurox';
 $properties .= '&property=utm_source_aurox';
 $properties .= '&property=createdate_aurox';
+$properties .= '&property=optin_date_aurox';
 
 $range = $sheet_name; // here we use the name of the Sheet to get all the rows
 $response = $service->spreadsheets_values->get($spreadsheetId, $range);
@@ -55,7 +56,7 @@ do {
         $utm_source = (string) $contact_props['utm_source_aurox']['value'];
         $utm_medium = (string) $contact_props['utm_medium_aurox']['value'];
         $utm_content_aurox = (string) $contact_props['utm_content_aurox']['value'];
-        $createdate_aurox = (string) $contact_props['createdate_aurox']['value'];
+        $optin_date_aurox = (string) $contact_props['optin_date_aurox']['value'];
 
         $rows[] = [
             $first_name,
@@ -67,7 +68,7 @@ do {
             $utm_content_aurox,
             $utm_medium,
             $utm_source,
-            $createdate_aurox ? date('Y-m-d', $createdate_aurox / 1000) : ''
+            $optin_date_aurox
         ];
 
         $rows2[] = [
@@ -76,7 +77,7 @@ do {
             $email,
             $phone,
             $utm_source,
-            $createdate_aurox ? date('Y-m-d', $createdate_aurox / 1000) : ''
+            $optin_date_aurox
         ];
     }
 
