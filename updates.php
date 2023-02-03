@@ -9,6 +9,8 @@ require_once __DIR__ . '/config.php';
  * 5. if utm_campaign contains 'spirits' (not case sensitive) and [utm_medium = 'paidsocial'] then set [utm_medium_spirits = mp] & [utm_content_spirits = cso]
  * 6. if utm_campaign contains 'spirits' (not case sensitive) and [utm_medium = 'aff'] then set [utm_medium_spirits = ma]
  * 7. if utm_campaign contains 'spirits' (not case sensitive) and [utm_medium = 'ppc'] then set [utm_medium_spirits = mp]
+ * 8. if utm_campaign contains "pMax" or "PMAX" then utm_content_spirits=cp
+ * 
  */
 
 $list_id = 151;
@@ -65,7 +67,7 @@ do {
             $params['properties'][] = ['property' => 'utm_source_spirits', 'value' => $utm_source];
 
             // 4.
-            $params['properties'][] = ['property' => 'optin_date_spirits', 'value' => $create_date];
+            $params['properties'][] = ['property' => 'optin_date_spirits', 'value' => date('Y-m-d H:i:s', $create_date)];
 
             // 5.
             if (strtolower($utm_medium) == 'paidsocial') {
@@ -81,6 +83,11 @@ do {
             // 7.
             if (strtolower($utm_medium) == 'ppc') {
                 $params['properties'][] = ['property' => 'utm_medium_spirits', 'value' => 'mp'];
+            }
+
+            // 8.
+            if (stripos($utm_campaign, 'pmax')) {
+                $params['properties'][] = ['property' => 'utm_content_spirits', 'value' => 'cp'];
             }
         }
 
