@@ -32,12 +32,14 @@ $response = $service->spreadsheets_values->get($spreadsheetId2, $range);
 $values = $response->getValues();
 $total_rows = count($values);
 if ($total_rows > 1) {
-    $range = $sheet_name . '!' . $sheet_range2 . ($total_rows + 1);
-    $clear = new \Google_Service_Sheets_ClearValuesRequest();
-    $service->spreadsheets_values->clear($spreadsheetId2, $range, $clear);
+    //$range = $sheet_name . '!' . $sheet_range2 . ($total_rows + 1);
+    //$clear = new \Google_Service_Sheets_ClearValuesRequest();
+    //$service->spreadsheets_values->clear($spreadsheetId2, $range, $clear);
 }
 
 $offset = 0;
+
+$rows2_processed = 0;
 
 do {
     $response = doCurl('contacts/v1/lists/' . $list_id . '/contacts/all?count=100&formSubmissionMode=newest' . $properties . '&vidOffset=' . $offset);
@@ -91,8 +93,15 @@ do {
     $valueRange->setValues($rows2);
     $range = $sheet_name; // the service will detect the last row of this sheet
     $options = ['valueInputOption' => 'USER_ENTERED'];
-    $service->spreadsheets_values->append($spreadsheetId2, $range, $valueRange, $options);
+    if ($rows2_processed <= $total_rows && $total_rows > 1) {
+        $range .= '!A2';
+        $service->spreadsheets_values->update($spreadsheetId2, $range, $valueRange, $options);
+    } else {
+        $service->spreadsheets_values->append($spreadsheetId2, $range, $valueRange, $options);
+    }
 
     $offset = $response['vid-offset'];
+
+    $rows2_processed += count($response['contacts']);
 
 } while ($response['has-more']);
