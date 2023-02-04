@@ -14,7 +14,7 @@ $path = __DIR__ . '/credentials.json';
 $client->setAuthConfig($path);
 $service = new \Google_Service_Sheets($client);
 
-function doCurl($endpoint)
+function doCurl($endpoint, $params = [])
 {
 
     $curl = curl_init();
@@ -41,7 +41,13 @@ function doCurl($endpoint)
         CURLOPT_SSL_VERIFYPEER => false,
     ];
 
-    $config_arr[CURLOPT_CUSTOMREQUEST] = 'GET';
+    if (count($params) > 0) {
+        $config_arr[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
+        $config_arr[CURLOPT_POSTFIELDS] = json_encode($params);
+        $config_arr[CURLOPT_POST] = 1;
+    } else {
+        $config_arr[CURLOPT_CUSTOMREQUEST] = 'GET';
+    }
 
     curl_setopt_array($curl, $config_arr);
 
@@ -55,6 +61,16 @@ function doCurl($endpoint)
     //var_dump($response);
     return $response;
 
+}
+
+function logg($msg, $file = 'out.log')
+{
+    if ((is_array($msg) || is_object($msg)) && !is_string($msg)) {
+        $msg = json_encode($msg);
+    }
+    $str = sprintf("[%s] %s \n", date('Y-m-d H:i:s'), $msg);
+    file_put_contents('./' . $file, $str, FILE_APPEND);
+    echo $str;
 }
 
 ?>
