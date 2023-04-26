@@ -73,4 +73,46 @@ function logg($msg, $file = 'out.log')
     echo $str;
 }
 
+/**
+ * If the number is a 10 digit number then format (xxx) xxx-xxxx
+ * If the number is an 11 digit number and starts with 1 then format (xxx) xxx-xxxx (b/c 1 prefix is negligible for the client
+ * If the number is 11 digits or more then prefix +xx-x?-xxx-xxxx (where ? is however many extra digits there are )
+ * 447977406990
+ * 2107218816
+ * 9314500643
+ * 18664613801
+ * (800)789-6547
+ */
+function format_phone(string $phone_no)
+{
+    $phone_no = preg_replace('/\D/', '', $phone_no);
+
+    if (strlen($phone_no) == 10) {
+        $phone_no = preg_replace(
+            "/.*(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4})/",
+            '($1) $2-$3',
+            $phone_no
+        );
+    } else if (strlen($phone_no) >= 11) {
+        $diff = strlen($phone_no) - 10;
+        $prefix = substr($phone_no, 0, $diff);
+        if ($prefix == '1') {
+            $phone_no = preg_replace(
+                "/.*(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4})/",
+                '($1) $2-$3',
+                $phone_no
+            );
+        } else {
+            $number = substr($phone_no, $diff);
+
+            $phone_no = "($prefix) " . preg_replace(
+                "/.*(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4})/",
+                '$1 $2-$3',
+                $number
+            );
+        }
+    }
+
+    return $phone_no;
+}
 ?>
